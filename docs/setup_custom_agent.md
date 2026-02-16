@@ -142,3 +142,9 @@ run_karate_validation(command="./gradlew test --tests *Karate*", repo_path="/abs
 - **Protected branch error**: switch to feature branch.
 - **Too many changes**: increase `max_files`/`max_hunks` gradually after review.
 - **Validation fails**: inspect returned stdout/stderr in `run_karate_validation` output.
+
+
+OpenAPI generation:
+```text
+generate_karate_tests_from_openapi(openapi_path="/path/to/openapi.yaml", dry_run=true)
+```

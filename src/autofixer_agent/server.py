@@ -12,6 +12,7 @@ from autofixer_agent.ingestors.excel import ingest_excel
 from autofixer_agent.ingestors.text_docs import ingest_text_document
 from autofixer_agent.karate.linking import link_mappings_to_assertions, suggestions_to_dict
 from autofixer_agent.karate.mapping import MappingRecord, normalize_excel_mapping
+from autofixer_agent.karate.openapi import generate_karate_feature_from_openapi, write_generated_karate_feature
 from autofixer_agent.karate.parser import parse_karate_directory
 from autofixer_agent.karate.patching import apply_suggestions
 from autofixer_agent.karate.reuse import candidates_to_dict, find_reusable_assertions
@@ -222,6 +223,53 @@ def apply_karate_assertion_patches(
 def run_karate_validation(command: str, repo_path: str, timeout_s: int = 300) -> dict:
     """Run Karate framework validation command (Maven/Gradle/etc.) and return pass/fail with logs."""
     return run_validation_command(command=command, cwd=repo_path, timeout_s=timeout_s)
+
+
+@mcp.tool
+def generate_karate_tests_from_openapi(
+    openapi_path: str,
+    output_dir: str | None = None,
+    file_name: str = "generated_openapi.feature",
+    feature_name: str = "Generated API Tests",
+    tags: str = "@generated @openapi",
+    base_url_variable: str = "baseUrl",
+    dry_run: bool = True,
+    repo_path: str | None = None,
+    allow_protected_branch: bool = False,
+) -> dict:
+    """Generate Karate feature tests from OpenAPI Swagger YAML/JSON definitions. Supports preview or file write."""
+    generated = generate_karate_feature_from_openapi(
+        openapi_path=openapi_path,
+        feature_name=feature_name,
+        tags=tags,
+        base_url_variable=base_url_variable,
+    )
+
+    if dry_run:
+        return {
+            "generated": True,
+            "dry_run": True,
+            "openapi_path": openapi_path,
+            "output_path": None,
+            "feature_preview": generated,
+        }
+
+    if not output_dir:
+        raise ValueError("output_dir is required when dry_run=False")
+
+    safety = None
+    if repo_path:
+        safety = ensure_safe_branch(repo_path=repo_path, allow_protected=allow_protected_branch)
+
+    output_path = write_generated_karate_feature(content=generated, output_dir=output_dir, file_name=file_name)
+    return {
+        "generated": True,
+        "dry_run": False,
+        "openapi_path": openapi_path,
+        "output_path": output_path,
+        "feature_preview": generated,
+        "branch_safety": safety,
+    }
 
 
 @mcp.tool

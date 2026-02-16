@@ -39,6 +39,7 @@ If you prefer long-form details, also read:
 - `propose_karate_assertion_patches(..., min_confidence=0.70, max_files=10, max_hunks=50)`
 - `apply_karate_assertion_patches(..., dry_run=True, max_files=10, max_hunks=50, allow_protected_branch=False)`
 - `run_karate_validation(command, repo_path, timeout_s=300)`
+- `generate_karate_tests_from_openapi(openapi_path, output_dir?, file_name="generated_openapi.feature", dry_run=True, repo_path?)`
 
 ---
 
@@ -152,6 +153,26 @@ apply_karate_assertion_patches(
 run_karate_validation(command="mvn -Dtest=KarateRunner test", repo_path="/absolute/path/to/karate-repo")
 ```
 (or use your Gradle command)
+
+### Step H: Generate new Karate tests from OpenAPI Swagger
+```text
+generate_karate_tests_from_openapi(
+  openapi_path="/absolute/path/to/openapi.yaml",
+  feature_name="Generated Contract Tests",
+  dry_run=true
+)
+```
+
+When ready to write file:
+```text
+generate_karate_tests_from_openapi(
+  openapi_path="/absolute/path/to/openapi.json",
+  output_dir="/absolute/path/to/karate-repo/src/test/resources/features/generated",
+  file_name="contract_generated.feature",
+  dry_run=false,
+  repo_path="/absolute/path/to/karate-repo"
+)
+```
 
 ---
 

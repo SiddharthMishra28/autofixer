@@ -17,7 +17,8 @@ dependencies = [
   "pypdf>=4.3.1",
   "beautifulsoup4>=4.12.3",
   "gitpython>=3.1.43",
-  "python-gitlab>=4.8.0"
+  "python-gitlab>=4.8.0",
+  "pyyaml>=6.0.2"
 ]
 
 [project.scripts]

@@ -38,3 +38,9 @@ run_karate_validation(command="mvn -Dtest=KarateRunner test", repo_path="/path/t
 ```
 
 For a full beginner walkthrough, troubleshooting and safety guidance, use `docs/setup_custom_agent.md`.
+
+
+OpenAPI generation:
+```text
+generate_karate_tests_from_openapi(openapi_path="/path/to/openapi.yaml", dry_run=true)
+```
