@@ -22,9 +22,10 @@ normalize_excel_mapping_to_rag(path="/path/to/assertion-mapping.xlsx")
 ingest_text_to_rag(path="/path/to/runbook.md")
 ```
 
-## 4) Generate suggestions and patch preview
+## 4) Reuse-first analysis, then suggestions and patch preview
 
 ```text
+analyze_karate_reuse_candidates(top_k=5)
 suggest_karate_assertion_updates(min_confidence=0.7)
 propose_karate_assertion_patches(min_confidence=0.75, max_files=20, max_hunks=80)
 ```

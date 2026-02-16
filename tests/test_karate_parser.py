@@ -3,7 +3,7 @@ from autofixer_agent.karate.parser import parse_karate_feature
 
 def test_parse_karate_feature_extracts_scenarios_and_assertions():
     scenarios = parse_karate_feature("tests/fixtures/karate/sample.feature")
-    assert len(scenarios) == 2
+    assert len(scenarios) == 3
 
     primary = scenarios[0]
     assert primary.feature_name == "Login API validations"

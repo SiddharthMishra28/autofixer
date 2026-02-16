@@ -14,6 +14,7 @@ from autofixer_agent.karate.linking import link_mappings_to_assertions, suggesti
 from autofixer_agent.karate.mapping import MappingRecord, normalize_excel_mapping
 from autofixer_agent.karate.parser import parse_karate_directory
 from autofixer_agent.karate.patching import apply_suggestions
+from autofixer_agent.karate.reuse import candidates_to_dict, find_reusable_assertions
 from autofixer_agent.karate.safety import ensure_safe_branch
 from autofixer_agent.karate.validation import run_validation_command
 from autofixer_agent.rag.chromadb_store import ChromaRagStore, RagDocument
@@ -103,6 +104,40 @@ def _mapping_from_store(collection: str) -> list[MappingRecord]:
         payload = json.loads(doc)
         records.append(MappingRecord(**payload))
     return records
+
+
+@mcp.tool
+def analyze_karate_reuse_candidates(
+    mapping_collection: str = "karate_mappings",
+    karate_collection: str = "karate_features",
+    top_k: int = 5,
+) -> dict:
+    """Check existing Karate assertions first and return reusable candidates for each mapping record."""
+    karate_data = store.get_all(karate_collection, where={"source_type": "karate_scenario"})
+    scenarios = []
+    from autofixer_agent.karate.parser import KarateScenario, KarateAssertion
+
+    for doc in karate_data.get("documents", []):
+        payload = json.loads(doc)
+        payload["assertions"] = [KarateAssertion(**item) for item in payload.get("assertions", [])]
+        scenarios.append(KarateScenario(**payload))
+
+    mappings = _mapping_from_store(mapping_collection)
+    results = []
+    for mapping in mappings:
+        candidates = find_reusable_assertions(scenarios=scenarios, mapping=mapping, limit=top_k)
+        results.append(
+            {
+                "scenario_id": mapping.scenario_id,
+                "json_path": mapping.json_path,
+                "source_sheet": mapping.source_sheet,
+                "source_cell": mapping.source_cell,
+                "reuse_found": bool(candidates),
+                "candidates": candidates_to_dict(candidates),
+            }
+        )
+
+    return {"mappings_checked": len(mappings), "results": results}
 
 
 @mcp.tool

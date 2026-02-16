@@ -8,6 +8,9 @@ Scenario: SCN-101 successful login
   And match response.user.id == '#number'
   And match response.user.role == 'admin'
 
+Scenario: reusable baseline role assertion
+  * match response.user.role == 'admin'
+
 Scenario: fallback check
   * def expected = 'ok'
   * match response.meta.status == expected

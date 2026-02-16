@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 from autofixer_agent.karate.mapping import MappingRecord
 from autofixer_agent.karate.parser import KarateScenario
+from autofixer_agent.karate.reuse import ReuseCandidate, candidates_to_dict, find_reusable_assertions
 
 
 @dataclass
@@ -18,6 +19,8 @@ class AssertionUpdateSuggestion:
     reason: str
     source_sheet: str
     source_cell: str
+    strategy: str = "create_new"
+    reuse_candidates: list[dict] = field(default_factory=list)
 
 
 def _normalize(s: str) -> str:
@@ -49,9 +52,20 @@ def link_mappings_to_assertions(
             if score < min_confidence:
                 continue
 
+            reuse_candidates: list[ReuseCandidate] = find_reusable_assertions(scenarios=scenarios, mapping=mapping)
+            reuse_candidates = [item for item in reuse_candidates if item.scenario_name != scenario.scenario_name]
+
             comparator = mapping.comparator.strip() or "=="
             expression = f"match response.{mapping.json_path} {comparator} {mapping.expected_value}"
             reason = "matched by scenario id" if score >= 0.9 else "matched by json path proximity"
+            strategy = "create_new"
+
+            if reuse_candidates:
+                best = reuse_candidates[0]
+                strategy = "reuse_existing"
+                expression = best.expression
+                score = max(score, min(0.98, best.confidence + 0.1))
+                reason = f"reused existing assertion from scenario '{best.scenario_name}'"
 
             suggestions.append(
                 AssertionUpdateSuggestion(
@@ -64,6 +78,8 @@ def link_mappings_to_assertions(
                     reason=reason,
                     source_sheet=mapping.source_sheet,
                     source_cell=mapping.source_cell,
+                    strategy=strategy,
+                    reuse_candidates=candidates_to_dict(reuse_candidates),
                 )
             )
 

@@ -32,7 +32,8 @@ A beginner-friendly **FastMCP** server with advanced **Karate automation mainten
 ### Karate-specific maintenance
 - `ingest_karate_features_to_rag(path, collection="karate_features")`
 - `normalize_excel_mapping_to_rag(path, collection="karate_mappings")`
-- `suggest_karate_assertion_updates(karate_collection="karate_features", mapping_collection="karate_mappings", min_confidence=0.60)`
+- `analyze_karate_reuse_candidates(mapping_collection="karate_mappings", karate_collection="karate_features", top_k=5)`
+- `suggest_karate_assertion_updates(karate_collection="karate_features", mapping_collection="karate_mappings", min_confidence=0.60)` *(reuse-first: prefers existing assertions/utilities before creating new patterns)*
 - `propose_karate_assertion_patches(karate_collection="karate_features", mapping_collection="karate_mappings", min_confidence=0.70, max_files=10, max_hunks=50)`
 - `apply_karate_assertion_patches(repo_path, ..., dry_run=True, max_files=10, max_hunks=50, allow_protected_branch=False)`
 - `run_karate_validation(command, repo_path, timeout_s=300)`
@@ -41,10 +42,11 @@ A beginner-friendly **FastMCP** server with advanced **Karate automation mainten
 
 1. Index features with `ingest_karate_features_to_rag`.
 2. Normalize + index mapping workbook with `normalize_excel_mapping_to_rag`.
-3. Review link output from `suggest_karate_assertion_updates`.
-4. Generate diff preview using `propose_karate_assertion_patches`.
-5. Apply safely using `apply_karate_assertion_patches` in non-protected branch.
-6. Validate by executing `run_karate_validation`.
+3. Run `analyze_karate_reuse_candidates` to verify reusable assertions/utilities first.
+4. Review link output from `suggest_karate_assertion_updates` (contains `strategy`: `reuse_existing` or `create_new`).
+5. Generate diff preview using `propose_karate_assertion_patches`.
+6. Apply safely using `apply_karate_assertion_patches` in non-protected branch.
+7. Validate by executing `run_karate_validation`.
 
 ## Safety controls built in
 

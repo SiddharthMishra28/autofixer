@@ -19,7 +19,7 @@ def _create_mapping_xlsx(path: Path) -> None:
     wb.save(path)
 
 
-def test_mapping_normalization_and_linking(tmp_path):
+def test_mapping_normalization_and_linking_prefers_reuse(tmp_path):
     mapping_path = tmp_path / "mapping.xlsx"
     _create_mapping_xlsx(mapping_path)
 
@@ -31,5 +31,7 @@ def test_mapping_normalization_and_linking(tmp_path):
     suggestions = link_mappings_to_assertions(scenarios, mappings, min_confidence=0.6)
 
     assert suggestions
-    assert suggestions[0].scenario_id == "SCN-101"
-    assert "user.role" in suggestions[0].suggested_expression
+    target = next(s for s in suggestions if s.scenario_id == "SCN-101")
+    assert target.strategy == "reuse_existing"
+    assert "response.user.role" in target.suggested_expression
+    assert target.reuse_candidates
