@@ -1,7 +1,5 @@
 # Quickstart (10 minutes)
 
-This is the shortest path if you already know Python and VS Code.
-
 ## 1) Install
 
 ```bash
@@ -10,38 +8,32 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## 2) Export token (optional but needed for GitLab tool)
-
-```bash
-export GITLAB_TOKEN="<your_gitlab_pat>"
-```
-
-## 3) Run server
+## 2) Run server
 
 ```bash
 autofixer-mcp
 ```
 
-## 4) Ingest data from MCP client
-
-Use these tool calls:
+## 3) Index Karate + mapping knowledge
 
 ```text
-ingest_codebase_to_rag(path="/path/to/repo")
-ingest_excel_to_rag(path="/path/to/data.xlsx")
-ingest_text_to_rag(path="/path/to/runbook.pdf")
+ingest_karate_features_to_rag(path="/path/to/karate-repo")
+normalize_excel_mapping_to_rag(path="/path/to/assertion-mapping.xlsx")
+ingest_text_to_rag(path="/path/to/runbook.md")
 ```
 
-## 5) Query RAG
+## 4) Generate suggestions and patch preview
 
 ```text
-query_rag(collection="maintenance_knowledge", query="Why is LoginTest flaky in retry flow?", n_results=5)
+suggest_karate_assertion_updates(min_confidence=0.7)
+propose_karate_assertion_patches(min_confidence=0.75, max_files=20, max_hunks=80)
 ```
 
-## 6) Get GitLab context
+## 5) Apply patch and validate
 
 ```text
-gitlab_issue_and_mr_context(project_id="group/project", issue_iid=123, merge_request_iid=456)
+apply_karate_assertion_patches(repo_path="/path/to/karate-repo", dry_run=false)
+run_karate_validation(command="mvn -Dtest=KarateRunner test", repo_path="/path/to/karate-repo")
 ```
 
-For complete beginner instructions and troubleshooting, use `docs/setup_custom_agent.md`.
+For a full beginner walkthrough, troubleshooting and safety guidance, use `docs/setup_custom_agent.md`.

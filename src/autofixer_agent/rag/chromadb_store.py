@@ -35,3 +35,7 @@ class ChromaRagStore:
     def query(self, collection: str, query: str, n_results: int = 5) -> dict:
         col = self.client.get_or_create_collection(collection)
         return col.query(query_texts=[query], n_results=n_results)
+
+    def get_all(self, collection: str, where: dict | None = None) -> dict:
+        col = self.client.get_or_create_collection(collection)
+        return col.get(where=where)
