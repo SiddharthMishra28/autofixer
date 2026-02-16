@@ -1,0 +1,26 @@
+{
+  "inputs": [],
+  "servers": {
+    "autofixer-maintenance-agent": {
+      "type": "stdio",
+      "command": "autofixer-mcp",
+      "args": [],
+      "env": {
+        "CHROMA_PERSIST_DIR": "${workspaceFolder}/.chroma",
+        "GITLAB_TOKEN": "${input:gitlab_token}"
+      }
+    },
+    "gitlab": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@gitlab-org/gitlab-mcp"
+      ],
+      "env": {
+        "GITLAB_PAT": "${input:gitlab_token}",
+        "GITLAB_HOST": "https://gitlab.com"
+      }
+    }
+  }
+}
